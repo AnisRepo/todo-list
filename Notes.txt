@@ -1,0 +1,15 @@
+create table Task(
+	id int PRIMARY KEY,
+	title varchar(45) NOT NULL,
+	description varchar(150) NOT NULL
+);
+
+
+insert into task values("Social Media","Plan social content, Build cotent calender, Plan promotion and distribution");
+
+1: inComplete
+2: Running
+3: Completed
+
+
+new commit.

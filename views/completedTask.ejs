@@ -1,0 +1,359 @@
+<%- include('partials/header.ejs') %>
+
+  <body>
+
+    <div class="heading d-flex justify-content-between" style="align-items: center;">
+
+      <h2>Completed Tasks</h2>
+
+      <h5><a href="/">Home</a></h5>
+    </div>
+
+
+    <!-- Container for tasks -->
+    <div class="container text-center" style="background-color: grey;position: relative;height: 100%; max-height: 550px;overflow-y: scroll;">
+      <div class="row d-flex flex-wrap justify-content-evenly">
+        <% tasks.forEach(task=>{ %>
+          <div class="col m-3">
+            <!-- Task Card -->
+            <div class="card" style="width: 18rem;height: 100%;max-height: 252px;" id=<%=task.id %> >
+              <div class="card-body">
+                <div class="d-flex justify-content-end m-0 p-0">
+                <!-- <button style="border: 0;" class="btn btn-light deletionButtons p-0" href="#"
+                          data-bs-toggle="modal" data-bs-target="#deleteTaskModal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-trash" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                          </svg></button> -->
+                          </div>
+                <h5 class="card-title">
+                  <%= task.title%>
+                </h5>
+
+                <p class="card-text text-truncate py-2">
+                  <%= task.description %>
+                </p>
+
+                <% if(task.status==1) {%>
+                  <h6><span class="badge bg-danger">Pending</span></h6>
+                  <% }else if(task.status==2) {%>
+                    <h6><span class="badge bg-primary">Running</span></h6>
+                    <% }else{ %>
+                      <h6><span class="badge bg-success">Completed</span></h6>
+                      <% } %>
+                    <div class="d-flex flex-column align-items-center"> 
+                        <% const startTime = new Date(task.start_time); %>
+                        <% const endTime = new Date(task.end_time); %>
+                        <div class="d-flex"><p class="small">Started Time: &nbsp;</p><p class="small"><%= startTime.toLocaleString('en-US') %></p></div>
+                        
+                        <div class="d-flex"><p class="small">Finished Time: &nbsp;</p><p class="small"><%= endTime.toLocaleString('en-US') %></p></div>
+                    </div>
+
+                    <% const durationMilliSeconds = task.end_time - task.start_time %>
+                    <% const durationSeconds = Math.floor(durationMilliSeconds / 1000) %>
+
+                      <div class="timer d-flex flex-column align-items-center"><p>Duration:  &nbsp;<%= formatDuration(durationSeconds) %></p></div>
+
+                      <% function formatDuration(seconds){
+                        const hours = Math.floor(seconds / 3600);
+                        const minutes = Math.floor((seconds % 3600)/60);
+                        const remainingSeconds = Math.floor(seconds % 60);
+                        
+                        const fHour = String(hours).padStart(2,'0');
+                        const fMinutes = String(minutes).padStart(2,'0');
+                        const fSeconds = String(remainingSeconds).padStart(2,'0');
+                        
+                        return '' + fHour +':' +fMinutes +':'+ fSeconds +'';
+                      } %>
+                    
+                    
+              </div>
+            </div>
+          </div>
+          <% }) %>
+            
+      </div>
+    </div>
+
+
+
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form action="/addTask" method="post">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Task</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="text" name="title" placeholder="Enter task title">
+              <input type="text" name="description" placeholder="Enter task description">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+              <button type="submit" class="btn btn-primary">Add</button>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form action="/updateTask" method="post">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Update Task</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="text" name="title" placeholder="Enter task title">
+              <input type="text" name="description" placeholder="Enter task description">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <input type="hidden" name="id" id="updateId" value="">
+              <button type="submit" class="btn btn-primary">Update</button>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="deleteForms">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Task</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3>Confirm Delete Task!</h3>
+              <p class=".text-danger" id="deleteError"></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <input type="hidden" name="id" id="deleteId" value="">
+              <button type="button" onclick="deleteTask()" class="btn btn-primary">Delete</button>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    
+
+
+      <div class="modal-dialog">
+        <form action="/deleteTask" method="post">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Task</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h3>Confirm Delete Task!</h3>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <input type="hidden" name="id" id="deleteId" value="">
+              <button type="submit" class="btn btn-primary">Delete</button>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </body>
+  <script>
+
+    // For Modal Update and Delete
+    console.log("Hiii");
+    const updateButtons = document.querySelectorAll('.updationButtons')
+    updateButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        console.log("clicked");
+        const taskId = button.parentNode.parentNode.id;
+        console.log("task Id: " + taskId);
+        document.getElementById("updateId").value = taskId;
+
+      });
+    });
+
+    const deleteButtons = document.querySelectorAll('.deletionButtons')
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        console.log("clicked");
+        const taskId = button.parentNode.parentNode.id;
+        console.log("task Id: " + taskId);
+        document.getElementById("deleteId").value = taskId;
+      });
+    })
+
+
+// Delete Logic
+const deleteTask = ()=>{
+
+const taskId = document.getElementById("deleteId").value;
+
+checkStatus(taskId).then(response=>{
+  response.json().then(data=>{
+    if(data.status == 2){
+      alert("Task is Running: Cant be Deleted!");
+      return;
+    }else{
+      fetch('/deleteTask',{
+        method: "POST",
+        headers: {
+          'Content-Type':'application/json',
+        },
+        body: JSON.stringify({
+          id: taskId,
+        })
+      }).then(async response=>{
+        console.log("Response: " + response);
+        const {success} = await response.json();
+          if(success){
+            location.reload();
+            console.log("Deleted Succss")
+          }else{
+            alert("Problem in Deletion!");
+            console.log("Problem in Deletion!");
+          }
+      })
+    }
+  })
+})
+}
+
+const checkStatus = (taskId)=>{
+return fetch('/getTask?id='+taskId,{
+  method: 'POST',
+  headers: {
+    'Content-Type':'application/json',
+  },
+});
+}
+
+
+
+    // For Timer 
+    // Assing Event Button for all Start Button 
+    document.addEventListener('DOMContentLoaded',()=>{
+      console.log("DOM Loaded");
+      const startButtons = document.querySelectorAll('.startBtn')
+      startButtons.forEach(button=>{
+        button.addEventListener('click',async ()=>{
+          console.log("Start Button Clicked");
+          const taskCard = button.closest('.card');
+          const taskId = taskCard.id;
+          
+          
+          console.log("Timer Started for Task: ",taskId);
+          const timerElement = taskCard.querySelector('.timer');
+          
+          // const response = await fetch('/updateTimer?id='+taskId);
+
+          const resp= await fetch('/getTimerStatus?id='+taskId);
+
+          const {success,status,startTime} = await resp.json();
+
+          console.log("Timer: " + startTime + success + status);
+
+          if(success && status == 2){
+            console.log("True");
+            updateLocalTimer(timerElement,startTime);
+          }else{
+            console.log("False");
+            const startTime = new Date().getTime();
+            updateServerTimer(taskId,2,startTime);
+            updateLocalTimer(timerElement,startTime);
+          }
+        });
+      });
+    });
+
+    // Assing Event Button for all Start Button 
+    document.addEventListener('DOMContentLoaded',function(){
+      const startButtons = document.querySelectorAll('.endBtn')
+      startButtons.forEach(button=>{
+        button.addEventListener('click',async ()=>{
+          console.log("End Button Clicked");
+          const taskCard = button.closest('.card');
+          const taskId = taskCard.id;
+          
+          
+          console.log("Timer Ended for Task: ",taskId);
+          const timerElement = taskCard.querySelector('.timer');
+
+          updateLocalTimer(timerElement,null);
+          updateServerTimer(taskId,3,null);
+        });
+      });
+    });
+
+    
+
+    const updateLocalTimer = (timerElement,startTime)=>{
+      const updateTimer = ()=>{
+        if (startTime!== null){
+          const currentTime = new Date().getTime();
+          const elapsedTime = currentTime - startTime;
+          const formattedTime = formatTime(elapsedTime);
+          timerElement.textContent = formattedTime;
+        }else{
+          timerElement.textContent = '00:00:00';
+        }
+      requestAnimationFrame(updateTimer);
+      }
+      
+    }
+
+    const updateServerTimer = async (taskId,status,startTime)=>{
+      console.log("UpdateServerTimer Function Called");
+      const response = await fetch('/updateTimer?id='+taskId,{
+          method: 'POST',
+          headers: {
+            'Content-Type':'application/json',
+          },
+          body:JSON.stringify({
+            id: taskId,
+            status: status,
+            startTime: startTime
+          }),
+        });
+      const {success} = await response.json();
+
+      if(success){
+        console.log("Server Time Updated");
+        
+      }else{
+        console.log("Server Time Updation Failed");
+      }
+
+      
+    }
+
+    const formatTime = (time)=>{
+      const seconds = Math.floor(time/1000);
+      const minutes = Math.floor(seconds/60);
+      const hour = Math.floor(minutes/60);
+      
+      const formattedSeconds = String(seconds % 60).padStart(2,'0');
+      const formattedMinutes = String(minutes % 60).padStart(2,'0');
+      const formattedHour = String(hour).padStart(2,'0');
+
+      return ''+formattedHour + ':' + formattedMinutes + ':' + formattedSeconds +'';
+    }
+
+  </script>
+  <%- include('partials/footer.ejs') %>
